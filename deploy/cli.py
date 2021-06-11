@@ -13,7 +13,8 @@ import requests
 @click.option("--portainer-stack", envvar="PORTAINER_STACK", default=None, required=True)
 @click.option("--stackfile", envvar="STACKFILE", default="docker-stack.yml", required=True)
 @click.option("--env-var", "-e", multiple=True, default=[], required=False)
-def main(portainer_url, portainer_username, portainer_password, portainer_stack, stackfile, env_var):
+@click.option("--pull-image", "-ι", multiple=True, default=[], required=False, help="Docker images to pull first")
+def main(portainer_url, portainer_username, portainer_password, portainer_stack, stackfile, env_var, pull_image):
     # Build list of env vars to be passed on to Portainer
     stack_env = []
     if len(env_var) > 0:
@@ -72,6 +73,25 @@ def main(portainer_url, portainer_username, portainer_password, portainer_stack,
         sys.exit(1)
 
     click.echo(click.style(" done", fg="green"))
+    
+    # Updating (pull) images before update
+    if len(pull_image) > 0:
+        click.echo("Pulling images... \n")
+        for i in pull_image:
+            click.echo(f" Pulling image {i}... ")
+            r = requests.post(
+                # endpoints/1/docker/images/create?fromImage=
+                f"{portainer_url}/endpoints/{endpoint_id}/docker/images/create?fromImage={i}",
+                headers=headers,
+                json={
+                   "fromImage": i
+                }
+            )
+            if r.status_code != 200:
+                click.echo(click.style(" done\n", fg="green"))
+            else
+                click.echo(click.style(" failed\n", fg="red"))
+         click.echo(click.style("Pulling images... done\n", fg="green"))
 
     # Update stack
     click.echo(click.style("Requesting stack update...", fg="yellow"), nl=False)
