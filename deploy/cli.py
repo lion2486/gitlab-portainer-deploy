@@ -89,9 +89,9 @@ def main(portainer_url, portainer_username, portainer_password, portainer_stack,
             )
             if r.status_code != 200:
                 click.echo(click.style(" done\n", fg="green"))
-            else
+            else:
                 click.echo(click.style(" failed\n", fg="red"))
-         click.echo(click.style("Pulling images... done\n", fg="green"))
+        click.echo(click.style("Pulling images... done\n", fg="green"))
 
     # Update stack
     click.echo(click.style("Requesting stack update...", fg="yellow"), nl=False)
